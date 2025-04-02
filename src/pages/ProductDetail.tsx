@@ -76,7 +76,7 @@ const ProductDetail: React.FC = () => {
       
       // Format price history data - Ensure date is a string
       const priceHistory = priceHistoryData?.map(item => ({
-        date: String(item.effdate), // Ensure date is a string
+        date: item.effdate.toString(), // Convert effdate to string explicitly
         price: parseFloat(item.unitprice) || 0
       })) || [];
       
@@ -159,8 +159,8 @@ const ProductDetail: React.FC = () => {
           <div>
             <div className="aspect-square rounded-lg overflow-hidden bg-white shadow-md">
               <img
-                src={product.imageUrl}
-                alt={product.name}
+                src={product?.imageUrl}
+                alt={product?.name}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -169,22 +169,22 @@ const ProductDetail: React.FC = () => {
           <div>
             <div className="mb-2">
               <span className="inline-block px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
-                {product.category}
+                {product?.category}
               </span>
             </div>
             
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{product?.name}</h1>
             
             <div className="text-2xl font-bold text-blue-600 mb-4">
-              ${product.currentPrice.toFixed(2)}
+              ${product?.currentPrice.toFixed(2)}
             </div>
             
-            <p className="text-gray-600 mb-6">{product.description}</p>
+            <p className="text-gray-600 mb-6">{product?.description}</p>
             
             <div className="flex flex-wrap gap-3 mb-6">
               <Button 
                 variant="outline" 
-                onClick={() => navigate(`/edit-product/${product.id}`)}
+                onClick={() => navigate(`/edit-product/${product?.id}`)}
               >
                 <Pencil className="h-4 w-4 mr-2" />
                 Edit Product
@@ -222,7 +222,7 @@ const ProductDetail: React.FC = () => {
         </div>
         
         <div className="mt-12">
-          <PriceHistoryChart priceHistory={product.priceHistory} />
+          <PriceHistoryChart priceHistory={product?.priceHistory || []} />
         </div>
       </div>
     </PageContainer>
