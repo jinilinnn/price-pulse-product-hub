@@ -22,6 +22,18 @@ const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ priceHistory }) =
     new Date(a.date).getTime() - new Date(b.date).getTime()
   );
   
+  // If there's no price history data, show a message
+  if (!priceHistory || priceHistory.length === 0) {
+    return (
+      <div className="w-full bg-white p-4 rounded-lg shadow">
+        <h3 className="font-medium text-lg mb-4">Price History</h3>
+        <div className="h-[300px] flex items-center justify-center">
+          <p className="text-gray-500">No price history available for this product</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="w-full bg-white p-4 rounded-lg shadow">
       <h3 className="font-medium text-lg mb-4">Price History</h3>

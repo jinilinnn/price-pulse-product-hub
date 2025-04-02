@@ -1,13 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { products } from '@/data/mockData';
 import { Product } from '@/types';
 import PageContainer from '@/components/layout/PageContainer';
 import PriceHistoryChart from '@/components/products/PriceHistoryChart';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2, ArrowLeft } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import {
   AlertDialog,
@@ -20,6 +19,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { supabase } from '@/integrations/supabase/client';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,12 +29,83 @@ const ProductDetail: React.FC = () => {
   
   useEffect(() => {
     if (id) {
-      // Find product by ID
-      const foundProduct = products.find(p => p.id === id);
-      setProduct(foundProduct || null);
-      setIsLoading(false);
+      fetchProductDetails(id);
     }
   }, [id]);
+  
+  const fetchProductDetails = async (productId: string) => {
+    try {
+      setIsLoading(true);
+      
+      // Get product basic info
+      const { data: productData, error: productError } = await supabase
+        .from('product')
+        .select('*')
+        .eq('prodcode', productId)
+        .single();
+      
+      if (productError) {
+        console.error('Error fetching product:', productError);
+        toast.error('Failed to load product details');
+        setIsLoading(false);
+        return;
+      }
+      
+      // Get the latest price for this product
+      const { data: latestPriceData, error: latestPriceError } = await supabase
+        .from('pricehist')
+        .select('*')
+        .eq('prodcode', productId)
+        .order('effdate', { ascending: false })
+        .limit(1);
+      
+      if (latestPriceError) {
+        console.error('Error fetching latest price:', latestPriceError);
+      }
+      
+      // Get all price history for this product
+      const { data: priceHistoryData, error: priceHistoryError } = await supabase
+        .from('pricehist')
+        .select('*')
+        .eq('prodcode', productId)
+        .order('effdate', { ascending: true });
+      
+      if (priceHistoryError) {
+        console.error('Error fetching price history:', priceHistoryError);
+      }
+      
+      // Format price history data
+      const priceHistory = priceHistoryData?.map(item => ({
+        date: item.effdate,
+        price: parseFloat(item.unitprice) || 0
+      })) || [];
+      
+      // Calculate current price
+      const currentPrice = latestPriceData && latestPriceData.length > 0 
+        ? parseFloat(latestPriceData[0].unitprice) || 0
+        : 0;
+      
+      // Create complete product object
+      const completeProduct: Product = {
+        id: productData.prodcode,
+        name: productData.prodcode,
+        description: productData.description || 'No description available',
+        currentPrice: currentPrice,
+        priceHistory: priceHistory,
+        imageUrl: `https://placehold.co/400x400/e6e6e6/black?text=${encodeURIComponent(productData.prodcode)}`,
+        category: productData.unit || 'Uncategorized',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      setProduct(completeProduct);
+    } catch (error) {
+      console.error('Error in fetchProductDetails:', error);
+      toast.error('Failed to load product details');
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   const handleDelete = () => {
     // In a real app, we would call an API here
