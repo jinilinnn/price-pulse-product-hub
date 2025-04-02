@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { toast } from '@/components/ui/sonner';
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -19,10 +20,31 @@ const LoginForm: React.FC = () => {
     setIsLoading(true);
     
     try {
+      // Validate input
+      if (!email.trim()) {
+        toast.error('Email is required');
+        setIsLoading(false);
+        return;
+      }
+      
+      if (!password.trim()) {
+        toast.error('Password is required');
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('Attempting login with:', { email });
+      
       const success = await login(email, password);
+      console.log('Login result:', success);
+      
       if (success) {
+        console.log('Login successful, navigating to dashboard');
         navigate('/dashboard');
       }
+    } catch (error) {
+      console.error('Login form error:', error);
+      toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
