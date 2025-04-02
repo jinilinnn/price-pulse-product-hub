@@ -85,7 +85,7 @@ const ProductDetail: React.FC = () => {
         ? parseFloat(latestPriceData[0].unitprice) || 0
         : 0;
       
-      // Create complete product object
+      // Create complete product object with proper type conversion
       const completeProduct: Product = {
         id: productData.prodcode,
         name: productData.prodcode,
