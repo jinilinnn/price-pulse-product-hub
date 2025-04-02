@@ -1,16 +1,32 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { products } from '@/data/mockData';
 import PageContainer from '@/components/layout/PageContainer';
-import ProductList from '@/components/products/ProductList';
+import ProductTable from '@/components/products/ProductTable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Plus } from 'lucide-react';
+import { fetchProducts } from '@/services/productService';
+import { useQuery } from '@tanstack/react-query';
+import { toast } from '@/components/ui/sonner';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Fetch products using React Query
+  const { data: products = [], isLoading, error } = useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts,
+  });
+  
+  // Show error toast if fetch fails
+  useEffect(() => {
+    if (error) {
+      toast.error('Failed to load products');
+      console.error('Error fetching products:', error);
+    }
+  }, [error]);
   
   // Filter products based on search term
   const filteredProducts = products.filter(product => 
@@ -25,7 +41,7 @@ const Dashboard: React.FC = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Products</h1>
           <p className="text-gray-600 mt-1">
-            Manage your products and track price history
+            View product information and current prices
           </p>
         </div>
         
@@ -46,7 +62,13 @@ const Dashboard: React.FC = () => {
           </Button>
         </div>
         
-        <ProductList products={filteredProducts} />
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <p className="text-gray-500">Loading products...</p>
+          </div>
+        ) : (
+          <ProductTable products={filteredProducts} />
+        )}
       </div>
     </PageContainer>
   );
