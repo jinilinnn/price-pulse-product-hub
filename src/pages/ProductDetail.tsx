@@ -76,13 +76,13 @@ const ProductDetail: React.FC = () => {
       
       // Format price history data - Ensure date is a string
       const priceHistory = priceHistoryData?.map(item => ({
-        date: item.effdate !== null ? String(item.effdate) : '', // Convert effdate to string explicitly
-        price: parseFloat(item.unitprice) || 0
+        date: item.effdate !== null ? String(item.effdate) : '', // Converting date to string
+        price: parseFloat(String(item.unitprice)) || 0 // Ensuring price is a number
       })) || [];
       
       // Calculate current price
       const currentPrice = latestPriceData && latestPriceData.length > 0 
-        ? parseFloat(latestPriceData[0].unitprice) || 0
+        ? parseFloat(String(latestPriceData[0].unitprice)) || 0
         : 0;
       
       // Create complete product object with proper type conversion

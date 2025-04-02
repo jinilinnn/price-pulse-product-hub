@@ -25,12 +25,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session) {
         const { user: supabaseUser } = session;
         if (supabaseUser) {
-          // Get user profile data
-          const { data: profileData } = await supabase
+          // Get user profile data using a more generic approach
+          const { data: profileData, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', supabaseUser.id)
             .single();
+          
+          if (error) {
+            console.error('Error fetching profile:', error);
+          }
           
           setUser({
             id: supabaseUser.id,
@@ -49,12 +53,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (event === 'SIGNED_IN' && session) {
         const { user: supabaseUser } = session;
         
-        // Get user profile data
-        const { data: profileData } = await supabase
+        // Get user profile data using a more generic approach
+        const { data: profileData, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', supabaseUser.id)
           .single();
+        
+        if (error) {
+          console.error('Error fetching profile:', error);
+        }
         
         setUser({
           id: supabaseUser.id,
