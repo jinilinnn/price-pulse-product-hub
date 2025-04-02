@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Product } from '@/types';
@@ -76,7 +75,7 @@ const ProductDetail: React.FC = () => {
       
       // Format price history data - Ensure date is a string
       const priceHistory = priceHistoryData?.map(item => ({
-        date: item.effdate.toString(), // Convert effdate to string explicitly
+        date: item.effdate ? item.effdate.toString() : '', // Converting effdate to string explicitly
         price: parseFloat(item.unitprice) || 0
       })) || [];
       
@@ -140,7 +139,7 @@ const ProductDetail: React.FC = () => {
     );
   }
   
-  const updatedAt = formatDistanceToNow(new Date(product.updatedAt), { addSuffix: true });
+  const updatedAt = formatDistanceToNow(new Date(product?.updatedAt || ''), { addSuffix: true });
   
   return (
     <PageContainer>
