@@ -74,9 +74,9 @@ const ProductDetail: React.FC = () => {
         console.error('Error fetching price history:', priceHistoryError);
       }
       
-      // Format price history data
+      // Format price history data - Ensure date is a string
       const priceHistory = priceHistoryData?.map(item => ({
-        date: item.effdate,
+        date: String(item.effdate), // Ensure date is a string
         price: parseFloat(item.unitprice) || 0
       })) || [];
       
